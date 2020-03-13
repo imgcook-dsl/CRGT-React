@@ -1,5 +1,5 @@
-module.exports = function(schema, option) {
-  const {prettier} = option;
+module.exports = function (schema, option) {
+  const { prettier } = option;
 
   // imports
   const imports = [];
@@ -13,12 +13,32 @@ module.exports = function(schema, option) {
   // Classes 
   const classes = [];
 
+  const prettierCssOpt = {
+    parser: 'css'
+  };
+
+    // style obj -> css
+    const generateCSS = (style) => {
+      let css = '';
+  
+      for (const layer in style) {
+        css += `.${layer} {`;
+        for (const key in style[layer]) {
+          css += `${parseCamelToLine(key)}: ${style[layer][key]};\n`
+        }
+        css += '}';
+      }
+  
+      return css;
+    };
+
+      // flexDirection -> flex-direction
+  const parseCamelToLine = (string) => string.split(/(?=[A-Z])/).join('-').toLowerCase()
+
   // 1vw = width / 100
   const _w = option.responsive.width / 100;
 
-  const isExpression = (value) => {
-    return /^\{\{.*\}\}$/.test(value);
-  }
+  const isExpression = (value) => /^\{\{.*\}\}$/.test(value)
 
   const toString = (value) => {
     if ({}.toString.call(value) === '[object Function]') {
@@ -31,9 +51,9 @@ module.exports = function(schema, option) {
       return JSON.stringify(value, (key, value) => {
         if (typeof value === 'function') {
           return value.toString();
-        } else {
-          return value;
         }
+        return value;
+
       })
     }
 
@@ -42,7 +62,7 @@ module.exports = function(schema, option) {
 
   // convert to responsive unit, such as vw
   const parseStyle = (style) => {
-    for (let key in style) {
+    for (const key in style) {
       switch (key) {
         case 'fontSize':
         case 'marginTop':
@@ -66,7 +86,7 @@ module.exports = function(schema, option) {
         case 'borderTopRightRadius':
         case 'borderTopLeftRadius':
         case 'borderRadius':
-          style[key] = (parseInt(style[key]) / _w).toFixed(2) + 'vw';
+          style[key] = `${(parseInt(style[key]) / _w).toFixed(2)}vw`;
           break;
       }
     }
@@ -91,18 +111,18 @@ module.exports = function(schema, option) {
       if (isExpression(value)) {
         if (isReactNode) {
           return value.slice(1, -1);
-        } else {
-          return value.slice(2, -2);
         }
+        return value.slice(2, -2);
+
       }
 
       if (isReactNode) {
         return value;
-      } else {
-        return `'${value}'`;
       }
-    } else if (typeof value === 'function') {
-      const {params, content} = parseFunction(value);
+      return `'${value}'`;
+
+    } if (typeof value === 'function') {
+      const { params, content } = parseFunction(value);
       return `(${params}) => {${content}}`;
     }
   }
@@ -110,7 +130,7 @@ module.exports = function(schema, option) {
   // parse async dataSource
   const parseDataSource = (data) => {
     const name = data.id;
-    const {uri, method, params} = data.options;
+    const { uri, method, params } = data.options;
     const action = data.type;
     let payload = {};
 
@@ -120,7 +140,7 @@ module.exports = function(schema, option) {
           imports.push(`import {fetch} from 'whatwg-fetch'`);
         }
         payload = {
-          method: method
+          method
         };
 
         break;
@@ -167,7 +187,7 @@ module.exports = function(schema, option) {
   const parseCondition = (condition, render) => {
     if (typeof condition === 'boolean') {
       return `${condition} && ${render}`
-    } else if (typeof condition === 'string') {
+    } if (typeof condition === 'string') {
       return `${condition.slice(2, -2)} && ${render}`
     }
   }
@@ -175,8 +195,8 @@ module.exports = function(schema, option) {
   // parse loop render
   const parseLoop = (loop, loopArg, render) => {
     let data;
-    let loopArgItem = (loopArg && loopArg[0]) || 'item';
-    let loopArgIndex = (loopArg && loopArg[1]) || 'index';
+    const loopArgItem = (loopArg && loopArg[0]) || 'item';
+    const loopArgIndex = (loopArg && loopArg[1]) || 'index';
 
     if (Array.isArray(loop)) {
       data = toString(loop);
@@ -201,7 +221,7 @@ module.exports = function(schema, option) {
   const generateRender = (schema) => {
     const type = schema.componentName.toLowerCase();
     const className = schema.props && schema.props.className;
-    const classString = className ? ` style={styles.${className}}` : '';
+    const classString = className ? ` className="${className}"` : '';
 
     if (className) {
       style[className] = parseStyle(schema.props.style);
@@ -216,7 +236,7 @@ module.exports = function(schema, option) {
       }
     })
 
-    switch(type) {
+    switch (type) {
       case 'text':
         const innerText = parseProps(schema.props.text, true);
         xml = `<span${classString}${props}>${innerText}</span>`;
@@ -298,7 +318,7 @@ module.exports = function(schema, option) {
         }
 
         if (schema.lifeCycles) {
-          if (!schema.lifeCycles['_constructor']) {
+          if (!schema.lifeCycles._constructor) {
             lifeCycles.push(`constructor(props, context) { super(); ${init.join('\n')}}`);
           }
 
@@ -348,11 +368,9 @@ module.exports = function(schema, option) {
       {
         panelName: `index.jsx`,
         panelValue: prettier.format(`
-          'use strict';
-
           import React, { Component } from 'react';
           ${imports.join('\n')}
-          import styles from './style.js';
+          import './index.scss';
           ${utils.join('\n')}
           ${classes.join('\n')}
           export default ${schema.componentName}_0;
@@ -360,9 +378,9 @@ module.exports = function(schema, option) {
         panelType: 'js',
       },
       {
-        panelName: `style.js`,
-        panelValue: prettier.format(`export default ${toString(style)}`, prettierOpt),
-        panelType: 'js'
+        panelName: `index.scss`,
+        panelValue: prettier.format(`${generateCSS(style)}`, prettierCssOpt),
+        panelType: 'css'
       }
     ],
     noTemplate: true
