@@ -1,9 +1,7 @@
-'use strict';
-
 import React, { Component } from 'react';
 import { fetch } from 'whatwg-fetch';
 import jsonp from 'fetch-jsonp';
-import styles from './style.js';
+import './index.scss';
 const print = function(value) {
   console.log(value);
 };
@@ -63,7 +61,7 @@ class Page_0 extends Component {
   }
   render() {
     return (
-      <div style={styles.box}>
+      <div className="box">
         {this.state.data.map((item, index) => {
           return (
             <div
@@ -74,35 +72,32 @@ class Page_0 extends Component {
               data-url={item.url}
               key={item.index}
             >
-              <div style={styles.bd}>
-                <img style={styles.layer} src={'https://img.alicdn.com/tfs/TB1bLoWoYH1gK0jSZFwXXc7aXXa-684-684.png'} />
-                <img style={styles.bg} src={item.coverImage} />
-                <div style={styles.wrap}>
+              <div className="bd">
+                <img className="layer" src={'https://img.alicdn.com/tfs/TB1bLoWoYH1gK0jSZFwXXc7aXXa-684-684.png'} />
+                <img className="bg" src={item.coverImage} />
+                <div className="wrap">
                   <img
-                    style={styles.riverdinwei}
+                    className="riverdinwei"
                     src={'https://img.alicdn.com/tfs/TB1mtZRoVT7gK0jSZFpXXaTkpXa-28-36.png'}
                   />
-                  <span style={styles.distance}>距离500m</span>
+                  <span className="distance">距离500m</span>
                 </div>
               </div>
-              <div style={styles.main}>
-                <span style={styles.title}>{item.title}</span>
+              <div className="main">
+                <span className="title">{item.title}</span>
               </div>
-              <div style={styles.ft}>
-                <div style={styles.block}>
-                  <img
-                    style={styles.xianjin}
-                    src={'https://img.alicdn.com/tfs/TB1OvsYoW61gK0jSZFlXXXDKFXa-60-60.png'}
-                  />
-                  <span style={styles.fashionHome}>{item.user.userName}</span>
+              <div className="ft">
+                <div className="block">
+                  <img className="xianjin" src={'https://img.alicdn.com/tfs/TB1OvsYoW61gK0jSZFlXXXDKFXa-60-60.png'} />
+                  <span className="fashionHome">{item.user.userName}</span>
                 </div>
                 {this.isReadCountShow(item.readCount) && (
-                  <div style={styles.group}>
+                  <div className="group">
                     <img
-                      style={styles.favorite}
+                      className="favorite"
                       src={'https://img.alicdn.com/tfs/TB1arwYo7T2gK0jSZFkXXcIQFXa-46-44.png'}
                     />
-                    <span style={styles.num}>{item.readCount}</span>
+                    <span className="num">{item.readCount}</span>
                   </div>
                 )}
               </div>
