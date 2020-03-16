@@ -20,16 +20,13 @@ co(function*() {
     'utf8'
   );
   const renderInfo = vm.run(code)(data, {
-    prettier: prettier,
-    _: _,
+    prettier,
+    _,
     responsive: {
       width: 750,
       viewportWidth: 375
     },
     utils: {
-      print: function(value) {
-        console.log(value);
-      }
     }
   });
 
@@ -38,7 +35,7 @@ co(function*() {
       fs.writeFileSync(path.join(__dirname, `../code/${file.panelName}`), file.panelValue);
     });
   } else {
-    const renderData = renderInfo.renderData;
+    const {renderData} = renderInfo;
     const ret = yield xtplRender(
       path.resolve(__dirname, '../src/template.xtpl'),
       renderData,

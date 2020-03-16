@@ -1,10 +1,8 @@
+'use strict';
+
 import React, { Component } from 'react';
-import { fetch } from 'whatwg-fetch';
-import jsonp from 'fetch-jsonp';
 import './index.scss';
-const print = function(value) {
-  console.log(value);
-};
+
 class Page_0 extends Component {
   state = {
     data: [
@@ -30,34 +28,10 @@ class Page_0 extends Component {
   constructor(props, context) {
     super();
     console.log('super props');
-    this.fetch_example();
-    this.jsonp_example();
   }
   componentDidUpdate(prevProps, prevState, snapshot) {}
   isReadCountShow(readCount) {
     return readCount > 300;
-  }
-  fetch_example() {
-    fetch('https://jsonplaceholder.typicode.com/todos/1', { method: 'GET', headers: '{"Content-Type":"json"}' })
-      .then(response => response.json())
-      .then((data, error) => {
-        console.log('fetch example: ', data, error);
-        return data;
-      })
-      .catch(e => {
-        console.log('error', e);
-      });
-  }
-  jsonp_example() {
-    jsonp('https://assets.airbnb.com/frontend/search_results.js', { jsonpCallbackFunction: 'search_results', body: {} })
-      .then(response => response.json())
-      .then((data, error) => {
-        console.log('jsonp example: ', data, error);
-        return data;
-      })
-      .catch(e => {
-        console.log('error', e);
-      });
   }
   render() {
     return (
