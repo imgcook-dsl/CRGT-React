@@ -1,5 +1,5 @@
-module.exports = function (schema, option) {
-  const { prettier } = option;
+module.exports = function(schema, option) {
+  const {prettier} = option;
 
   // imports
   const imports = [];
@@ -17,10 +17,9 @@ module.exports = function (schema, option) {
     parser: 'css'
   };
 
-    // style obj -> css
-    const generateCSS = (style) => {
+  // style obj -> css
+  const generateCSS = (style) => {
       let css = '';
-  
       for (const layer in style) {
         css += `.${layer} {`;
         for (const key in style[layer]) {
@@ -36,7 +35,7 @@ module.exports = function (schema, option) {
   const parseCamelToLine = (string) => string.split(/(?=[A-Z])/).join('-').toLowerCase()
 
   // 1vw = width / 100
-  const _w = option.responsive.width / 100;
+  const _w = (option.responsive.width / 100) || 750;
 
   const isExpression = (value) => /^\{\{.*\}\}$/.test(value)
 
@@ -51,9 +50,9 @@ module.exports = function (schema, option) {
       return JSON.stringify(value, (key, value) => {
         if (typeof value === 'function') {
           return value.toString();
-        }
-        return value;
-
+        } 
+          return value;
+        
       })
     }
 
@@ -61,37 +60,39 @@ module.exports = function (schema, option) {
   };
 
   // convert to responsive unit, such as vw
-  const parseStyle = (style) => {
-    for (const key in style) {
-      switch (key) {
-        case 'fontSize':
-        case 'marginTop':
-        case 'marginBottom':
-        case 'paddingTop':
-        case 'paddingBottom':
-        case 'height':
-        case 'top':
-        case 'bottom':
-        case 'width':
-        case 'maxWidth':
-        case 'left':
-        case 'right':
-        case 'paddingRight':
-        case 'paddingLeft':
-        case 'marginLeft':
-        case 'marginRight':
-        case 'lineHeight':
-        case 'borderBottomRightRadius':
-        case 'borderBottomLeftRadius':
-        case 'borderTopRightRadius':
-        case 'borderTopLeftRadius':
-        case 'borderRadius':
-          style[key] = `${(parseInt(style[key]) / _w).toFixed(2)}vw`;
-          break;
+  const parseStyle = (styles) => {
+    for (const style in styles) {
+      for (const key in styles[style]) {
+        switch (key) {
+          case 'fontSize':
+          case 'marginTop':
+          case 'marginBottom':
+          case 'paddingTop':
+          case 'paddingBottom':
+          case 'height':
+          case 'top':
+          case 'bottom':
+          case 'width':
+          case 'maxWidth':
+          case 'left':
+          case 'right':
+          case 'paddingRight':
+          case 'paddingLeft':
+          case 'marginLeft':
+          case 'marginRight':
+          case 'lineHeight':
+          case 'borderBottomRightRadius':
+          case 'borderBottomLeftRadius':
+          case 'borderTopRightRadius':
+          case 'borderTopLeftRadius':
+          case 'borderRadius':
+            styles[style][key] = `${(parseInt(styles[style][key]) / _w).toFixed(2)  }vw`;
+            break;
+        }
       }
     }
 
-    return style;
+    return styles;
   }
 
   // parse function, return params and content
@@ -111,18 +112,18 @@ module.exports = function (schema, option) {
       if (isExpression(value)) {
         if (isReactNode) {
           return value.slice(1, -1);
-        }
-        return value.slice(2, -2);
-
+        } 
+          return value.slice(2, -2);
+        
       }
 
       if (isReactNode) {
         return value;
-      }
-      return `'${value}'`;
-
+      } 
+        return `'${value}'`;
+      
     } if (typeof value === 'function') {
-      const { params, content } = parseFunction(value);
+      const {params, content} = parseFunction(value);
       return `(${params}) => {${content}}`;
     }
   }
@@ -130,7 +131,7 @@ module.exports = function (schema, option) {
   // parse async dataSource
   const parseDataSource = (data) => {
     const name = data.id;
-    const { uri, method, params } = data.options;
+    const {uri, method, params} = data.options;
     const action = data.type;
     let payload = {};
 
@@ -224,7 +225,7 @@ module.exports = function (schema, option) {
     const classString = className ? ` className="${className}"` : '';
 
     if (className) {
-      style[className] = parseStyle(schema.props.style);
+      style[className] = schema.props.style;
     }
 
     let xml;
@@ -236,7 +237,7 @@ module.exports = function (schema, option) {
       }
     })
 
-    switch (type) {
+    switch(type) {
       case 'text':
         const innerText = parseProps(schema.props.text, true);
         xml = `<span${classString}${props}>${innerText}</span>`;
@@ -248,6 +249,7 @@ module.exports = function (schema, option) {
       case 'div':
       case 'page':
       case 'block':
+      case 'component':
         if (schema.children && schema.children.length) {
           xml = `<div${classString}${props}>${transform(schema.children)}</div>`;
         } else {
@@ -280,7 +282,7 @@ module.exports = function (schema, option) {
     } else {
       const type = schema.componentName.toLowerCase();
 
-      if (['page', 'block'].indexOf(type) !== -1) {
+      if (['page', 'block', 'component'].indexOf(type) !== -1) {
         // 容器组件处理: state/method/dataSource/lifeCycle/render
         const states = [];
         const lifeCycles = [];
