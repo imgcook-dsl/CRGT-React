@@ -61,6 +61,7 @@ module.exports = function(schema, option) {
 
   // convert to responsive unit, such as vw
   const parseStyle = (styles) => {
+
     for (const style in styles) {
       for (const key in styles[style]) {
         switch (key) {
@@ -244,7 +245,7 @@ module.exports = function(schema, option) {
         break;
       case 'image':
         const source = parseProps(schema.props.src);
-        xml = `<img${classString}${props} src={${source}} />`;
+        xml = `<img${classString}${props} src={require(${source})} />`;
         break;
       case 'div':
       case 'page':
